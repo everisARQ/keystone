@@ -4,7 +4,7 @@
 
 var fs = require('fs-extra');
 var path = require('path');
-var _ = require('underscore');
+var _ = require('lodash');
 var moment = require('moment');
 var grappling = require('grappling-hook');
 var util = require('util');
@@ -153,7 +153,7 @@ localfile.prototype.addToSchema = function () {
 		},
 	};
 
-	_.each(schemaMethods, function (fn, key) {
+	_.forEach(schemaMethods, function (fn, key) {
 		field.underscoreMethod(key, fn);
 	});
 
@@ -255,7 +255,7 @@ localfile.prototype.uploadFile = function (item, file, update, callback) {
 	var filename = prefix + file.name;
 	var filetype = file.mimetype || file.type;
 
-	if (field.options.allowedTypes && !_.contains(field.options.allowedTypes, filetype)) {
+	if (field.options.allowedTypes && !_.includes(field.options.allowedTypes, filetype)) {
 		return callback(new Error('Unsupported File Type: ' + filetype));
 	}
 

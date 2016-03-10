@@ -7,13 +7,13 @@ exports.initList = function (List) {
 		nested: {
 			textarr: TextArrayType,
 		},
+		customSeparator: { type: TextArrayType, separator: ' * ' },
 	});
 };
 
 exports.testFieldType = function (List) {
-	var testItem = new List.model();
-
 	it('should default to an empty array', function () {
+		var testItem = new List.model();
 		demand(testItem.get('textarr')).eql([]);
 	});
 
@@ -27,11 +27,11 @@ exports.testFieldType = function (List) {
 	});
 
 	it('should validate no input', function () {
+		var testItem = new List.model();
 		demand(List.fields.textarr.inputIsValid({})).be(true);
 		demand(List.fields.textarr.inputIsValid({}, true)).be(false);
 		testItem.textarr = ['a'];
 		demand(List.fields.textarr.inputIsValid({}, true, testItem)).be(true);
-		testItem.textarr = undefined;
 	});
 
 	it('should validate length when required', function () {
@@ -47,74 +47,97 @@ exports.testFieldType = function (List) {
 	});
 
 	it('should update top level fields', function (done) {
+		var testItem = new List.model();
 		List.fields.textarr.updateItem(testItem, {
 			textarr: ['a', 'b'],
 		}, function () {
 			demand(testItem.textarr).eql(['a', 'b']);
-			testItem.textarr = undefined;
 			done();
 		});
 	});
 
 	it('should update nested fields', function (done) {
+		var testItem = new List.model();
 		List.fields['nested.textarr'].updateItem(testItem, {
 			nested: {
 				textarr: ['a', 'b'],
 			},
 		}, function () {
 			demand(testItem.nested.textarr).eql(['a', 'b']);
-			testItem.nested.textarr = undefined;
 			done();
 		});
 	});
 
 	it('should update nested fields with flat paths', function (done) {
+		var testItem = new List.model();
 		List.fields['nested.textarr'].updateItem(testItem, {
 			'nested.textarr': ['a', 'b'],
 		}, function () {
 			demand(testItem.nested.textarr).eql(['a', 'b']);
-			testItem.nested.textarr = undefined;
 			done();
 		});
 	});
 
 	it('should update empty arrays', function (done) {
+		var testItem = new List.model();
 		List.fields.textarr.updateItem(testItem, {
 			textarr: [],
 		}, function () {
 			demand(testItem.textarr).eql([]);
-			testItem.textarr = undefined;
 			done();
 		});
 	});
 
 	it('should default on null', function (done) {
+		var testItem = new List.model();
 		List.fields.textarr.updateItem(testItem, {
 			textarr: null,
 		}, function () {
 			demand(testItem.textarr).eql([]);
-			testItem.textarr = undefined;
 			done();
 		});
 	});
 
 	it('should allow a single string value', function (done) {
+		var testItem = new List.model();
 		List.fields.textarr.updateItem(testItem, {
 			textarr: 'a',
 		}, function () {
 			demand(testItem.textarr).eql(['a']);
-			testItem.textarr = undefined;
 			done();
 		});
 	});
 
-	it('should convert numbers to strings', function (done) {
+	it('should convert truthy values with toString methods to strings', function (done) {
+		var testItem = new List.model();
+		var time = new Date();
 		List.fields.textarr.updateItem(testItem, {
-			textarr: 1,
+			textarr: [1, 'a', true, false, null, undefined, [], {}, time],
 		}, function () {
-			demand(testItem.textarr).eql(['1']);
-			testItem.textarr = undefined;
+			demand(testItem.textarr).eql(['1', 'a', 'true', '[object Object]', String(time)]);
 			done();
 		});
 	});
+
+	it('should use the default separator for formatting', function () {
+		var testItem = new List.model({
+			textarr: ['one', 'two', 'three'],
+		});
+		demand(testItem._.textarr.format()).be('one | two | three');
+	});
+
+	it('should use the provided separator for formatting', function () {
+		var testItem = new List.model({
+			textarr: ['one', 'two', 'three'],
+		});
+		demand(testItem._.textarr.format(', ')).be('one, two, three');
+	});
+
+	it('should use the specified separator for formatting', function () {
+		var testItem = new List.model({
+			customSeparator: ['one', 'two', 'three'],
+		});
+		demand(testItem._.customSeparator.format()).be('one * two * three');
+	});
+
 };

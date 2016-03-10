@@ -1,4 +1,4 @@
-var _ = require('underscore');
+var _ = require('lodash');
 var FieldType = require('../Type');
 var keystone = require('../../../');
 var util = require('util');
@@ -131,6 +131,69 @@ relationship.prototype.format = function (item) {
 };
 
 /**
+ * Asynchronously confirms that the provided value is valid
+ *
+ * TODO: might be a good idea to check the value provided looks like a MongoID
+ * TODO: we're just testing for strings here, so actual MongoID Objects (from
+ * mongoose) would fail validation. not sure if this is an issue.
+ */
+relationship.prototype.validateInput = function (data, callback) {
+	var value = this.getValueFromData(data);
+	var result = false;
+	if (value === undefined) {
+		result = true;
+	} else {
+		if (this.many) {
+			if (!Array.isArray(value) && typeof value === 'string' && value.length) {
+				value = [value];
+			}
+			if (Array.isArray(value)) {
+				result = true;
+			}
+		} else {
+			if (typeof value === 'string' && value.length) {
+				result = true;
+			}
+			if (typeof value === 'object' && value.id) {
+				result = true;
+			}
+		}
+	}
+	utils.defer(callback, result);
+};
+
+/**
+ * Asynchronously confirms that the provided value is present
+ */
+relationship.prototype.validateRequiredInput = function (item, data, callback) {
+	var value = this.getValueFromData(data);
+	var result = false;
+	if (value === undefined) {
+		if (this.many) {
+			if (item.get(this.path).length) {
+				result = true;
+			}
+		} else {
+			if (item.get(this.path)) {
+				result = true;
+			}
+		}
+	} else if (this.many) {
+		if (!Array.isArray(value) && typeof value === 'string' && value.length) {
+			value = [value];
+		}
+		if (Array.isArray(value) && value.length) {
+			result = true;
+		}
+	} else {
+		if (value) {
+			result = true;
+		}
+	}
+	utils.defer(callback, result);
+};
+
+/**
  * Validates that a value for this field has been provided in a data object
  *
  * Deprecated
@@ -213,12 +276,12 @@ Object.defineProperty(relationship.prototype, 'hasFilters', {
  */
 // TODO: Deprecate this? Not sure it's used anywhere - JW
 relationship.prototype.addFilters = function (query, item) {
-	_.each(this.filters, function (filters, path) {
+	_.forEach(this.filters, function (filters, path) {
 		if (!utils.isObject(filters)) {
 			filters = { equals: filters };
 		}
 		query.where(path);
-		_.each(filters, function (value, method) {
+		_.forEach(filters, function (value, method) {
 			if (typeof value === 'string' && value.substr(0, 1) === ':') {
 				if (!item) {
 					return;

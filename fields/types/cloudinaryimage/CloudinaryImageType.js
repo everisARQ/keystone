@@ -1,4 +1,4 @@
-var _ = require('underscore');
+var _ = require('lodash');
 var assign = require('object-assign');
 var cloudinary = require('cloudinary');
 var keystone = require('../../../');
@@ -250,7 +250,7 @@ cloudinaryimage.prototype.addToSchema = function () {
 		},
 	};
 
-	_.each(schemaMethods, function (fn, key) {
+	_.forEach(schemaMethods, function (fn, key) {
 		field.underscoreMethod(key, fn);
 	});
 
@@ -295,8 +295,6 @@ function validateInput (value) {
 
 /**
  * Validates that a value for this field has been provided in a data object
- *
- * @api public
  */
 cloudinaryimage.prototype.validateInput = function (data, callback) {
 	var value = this.getValueFromData(data);

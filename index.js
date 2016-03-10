@@ -124,10 +124,6 @@ Keystone.prototype.render = require('./lib/core/render');
 Keystone.prototype.start = require('./lib/core/start');
 Keystone.prototype.wrapHTMLError = require('./lib/core/wrapHTMLError');
 
-// Libs of arch concept
-Keystone.prototype.logger = require('./lib/archjs/log/logger');
-
-
 /**
  * The exports object is an instance of Keystone.
  *
@@ -151,6 +147,9 @@ keystone.security = {
 	csrf: require('./lib/security/csrf'),
 };
 keystone.utils = utils;
+
+// Libs of arch concept
+keystone.Logger = require('./lib/archjs/log/logger');
 
 /**
  * returns all .js modules (recursively) in the path specified, relative

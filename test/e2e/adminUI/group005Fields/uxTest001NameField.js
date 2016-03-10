@@ -1,22 +1,18 @@
-var adminUI = require('../adminUI');
-
 module.exports = {
 	before: function (browser) {
 		browser
-			.url(adminUI.url)
-			.waitForElementVisible(adminUI.cssSelector.signinView.id)
-			.setValue(adminUI.cssSelector.signinView.emailInput, adminUI.login.email)
-			.setValue(adminUI.cssSelector.signinView.passwordInput, adminUI.login.password)
+			.url(browser.globals.adminUI.url)
+			.waitForElementVisible('#signin-view')
+			.setValue('input[name=email]', browser.globals.adminUI.login.email)
+			.setValue('input[name=password]', browser.globals.adminUI.login.password)
+			.click('button[type=submit]')
 			.pause(browser.globals.defaultPauseTimeout)
-			.click(adminUI.cssSelector.signinView.submitButton)
-			.pause(browser.globals.defaultPauseTimeout)
-			.url(adminUI.url)
-			.waitForElementVisible(adminUI.cssSelector.homeView.id)
+			.url(browser.globals.adminUI.url)
 			.pause(browser.globals.defaultPauseTimeout);
 	},
 	after: function (browser) {
 		browser
-			.click(adminUI.cssSelector.allView.logoutIconLink)
+			.click('#home-view > div > header > nav > div > ul.app-nav.app-nav--primary.app-nav--right > li:nth-child(2) > a')
 			.pause(browser.globals.defaultPauseTimeout)
 			.end();
 	},

@@ -61,6 +61,31 @@ module.exports = function createApp (keystone, express) {
 		app.use(morgan(keystone.get('logger'), keystone.get('logger options')));
 	}
 
+	// Logger Concept to use instead of console function.
+	if (keystone.get('Logger options')) {
+		var loggerOptions = keystone.get('Logger options');
+		for (var i = 0; i < Object.keys(keystone.Logger.transports).length; i++) {
+			if (keystone.Logger.transports[Object.keys(keystone.Logger.transports)[i]].level) {
+				keystone.Logger.transports[Object.keys(keystone.Logger.transports)[i]].level = loggerOptions.level;
+			}
+			if (keystone.Logger.transports[Object.keys(keystone.Logger.transports)[i]].json) {
+				keystone.Logger.transports[Object.keys(keystone.Logger.transports)[i]].json = loggerOptions.json;
+			}
+			if (keystone.Logger.transports[Object.keys(keystone.Logger.transports)[i]].logstash) {
+				keystone.Logger.transports[Object.keys(keystone.Logger.transports)[i]].logstash
+					= loggerOptions.logstash;
+			}
+			if (keystone.Logger.transports[Object.keys(keystone.Logger.transports)[i]].formatter) {
+				keystone.Logger.transports[Object.keys(keystone.Logger.transports)[i]].formatter
+					= loggerOptions.formatter;
+			}
+			if (keystone.Logger.transports[Object.keys(keystone.Logger.transports)[i]].timestamp) {
+				keystone.Logger.transports[Object.keys(keystone.Logger.transports)[i]].timestamp
+					= loggerOptions.timestamp;
+			}
+		}
+	}
+
 	// If the user wants to define their own middleware for logging,
 	// they should be able to
 	if (keystone.get('logging middleware')) {

@@ -61,6 +61,14 @@ module.exports = function createApp (keystone, express) {
 		app.use(morgan(keystone.get('logger'), keystone.get('logger options')));
 	}
 
+	// Logger Concept to use instead of console function.
+	if (keystone.get('Logger options')) {
+		var loggerOptions = keystone.get('Logger options');
+		for (var i = 0; i < Object.keys(keystone.Logger.transports).length; i++) {
+			keystone.Logger.transports[Object.keys(keystone.Logger.transports)[i]].level = loggerOptions.mode;
+		}
+	}
+
 	// If the user wants to define their own middleware for logging,
 	// they should be able to
 	if (keystone.get('logging middleware')) {

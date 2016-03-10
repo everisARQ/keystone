@@ -95,6 +95,11 @@ module.exports = function createApp (keystone, express) {
 		app.use(language(keystone));
 	}
 
+	// i18n preferences configuration and middleware use
+	if (keystone.get('i18n')) {
+		app.use(require('../lib/archjs/i18n')(keystone));
+	}
+
 	// Add 'X-Frame-Options' to response header for ClickJacking protection
 	if (keystone.get('frame guard')) {
 		app.use(require('../lib/security/frameGuard')(keystone));

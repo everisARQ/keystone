@@ -16,22 +16,20 @@ module.exports = function createStaticRouter (keystone) {
 
 	/* Prepare browserify bundles */
 	var bundles = {
-		fields: browserify('fields.js', 'FieldTypes'),
-		signin: browserify('views/signin.js'),
-		home: browserify('views/home.js'),
-		item: browserify('views/item.js'),
-		list: browserify('views/list.js'),
+		fields: browserify('fields/types.js', 'FieldTypes'),
+		signin: browserify('Signin/index.js'),
+		index: browserify('index.js'),
 	};
 
-	// prebuild static resources on the next tick
-	// improves first-request performance
-	process.nextTick(function () {
-		bundles.fields.build();
-		bundles.signin.build();
-		bundles.home.build();
-		bundles.item.build();
-		bundles.list.build();
-	});
+	// prebuild static resources on the next tick in keystone dev mode; this
+	// improves first-request performance but delays server start
+	if (process.env.KEYSTONE_DEV === 'true' || process.env.KEYSTONE_PREBUILD_ADMIN) {
+		process.nextTick(function () {
+			bundles.fields.build();
+			bundles.signin.build();
+			bundles.index.build();
+		});
+	}
 
 	/* Prepare LESS options */
 	var elementalPath = path.join(path.dirname(require.resolve('elemental')), '..');
@@ -54,9 +52,7 @@ module.exports = function createStaticRouter (keystone) {
 	router.use('/styles/fonts', express.static(path.resolve(__dirname + '/../../public/js/lib/tinymce/skins/keystone/fonts')));
 	router.get('/js/fields.js', bundles.fields.serve);
 	router.get('/js/signin.js', bundles.signin.serve);
-	router.get('/js/home.js', bundles.home.serve);
-	router.get('/js/item.js', bundles.item.serve);
-	router.get('/js/list.js', bundles.list.serve);
+	router.get('/js/index.js', bundles.index.serve);
 	router.use(express.static(path.resolve(__dirname + '/../../public')));
 
 	return router;
